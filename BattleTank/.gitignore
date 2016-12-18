@@ -50,6 +50,9 @@ Binaries/*
 # Builds
 Build/*
 
+# IPCH
+ipch/*
+
 # Don't ignore icon files in Build
 !Build/**/*.ico
 
