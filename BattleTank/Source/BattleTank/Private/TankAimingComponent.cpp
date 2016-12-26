@@ -4,6 +4,7 @@
 #include "TankAimingComponent.h"
 
 #include "TankBarrel.h"
+#include "TankTurret.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -20,6 +21,11 @@ UTankAimingComponent::UTankAimingComponent()
 void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
 {
 	Barrel = BarrelToSet;
+}
+
+void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet)
+{
+	Turret = TurretToSet;
 }
 
 // Called when the game starts
@@ -50,16 +56,23 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 	if (UGameplayStatics::SuggestProjectileVelocity(this, OutLaunchVelocity, StartLocation, HitLocation, LaunchSpeed, false, 0.0f, 0.0f, ESuggestProjVelocityTraceOption::DoNotTrace))
 	{
 		auto AimDirection = OutLaunchVelocity.GetSafeNormal();
-		// We have to rotate the barrel in to the direction of the AimDirection
-		MoveBarrel(AimDirection);
+		AimBarrelTo(AimDirection);
 	}
 }
 
-void UTankAimingComponent::MoveBarrel(FVector AimDirection)
+void UTankAimingComponent::AimBarrelTo(FVector AimDirection)
 {
 	auto AimRotator = AimDirection.Rotation();
 	auto BarrelRotator = Barrel->GetComponentRotation();
+	auto DeltaRotator = AimRotator - BarrelRotator;
 
-	Barrel->Elevate(5); // TODO remove magic number
+	// If |Yaw| > 180, we change the direction of the rotation
+	auto RawYaw = DeltaRotator.Yaw;
+	if (RawYaw > 180.0f)
+		RawYaw -= 360.0f;
+	else if (RawYaw < -180.0f)
+		RawYaw += 360.0f;
+
+	Barrel->Elevate(DeltaRotator.Pitch);
+	Turret->Rotate(RawYaw);
 }
-

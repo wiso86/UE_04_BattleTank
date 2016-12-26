@@ -6,16 +6,6 @@
 #include "TankBarrel.h"
 #include "TankAimingComponent.h"
 
-void ATank::AimAt(FVector HitLocation)
-{
-	TankAimingComponent->AimAt(HitLocation, LaunchSpeed);
-}
-
-void ATank::SetBarrelReference(UTankBarrel* BarrelToSet)
-{
-	TankAimingComponent->SetBarrelReference(BarrelToSet);
-}
-
 // Sets default values
 ATank::ATank()
 {
@@ -38,4 +28,24 @@ void ATank::SetupPlayerInputComponent(class UInputComponent* InputComp)
 {
 	Super::SetupPlayerInputComponent(InputComp);
 
+}
+
+void ATank::SetBarrelReference(UTankBarrel* BarrelToSet)
+{
+	TankAimingComponent->SetBarrelReference(BarrelToSet);
+}
+
+void ATank::SetTurretReference(UTankTurret* TurretToSet)
+{
+	TankAimingComponent->SetTurretReference(TurretToSet);
+}
+
+void ATank::AimAt(FVector HitLocation)
+{
+	TankAimingComponent->AimAt(HitLocation, LaunchSpeed);
+}
+
+void ATank::Fire()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s is firing"), *GetName())
 }
