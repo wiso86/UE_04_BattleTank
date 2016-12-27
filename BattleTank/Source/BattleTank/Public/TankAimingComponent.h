@@ -29,7 +29,7 @@ public:
 
 	void AimAt(FVector HitLocation, float LaunchSpeed);
 
-	UPROPERTY(EditAnywhere, Category = Aiming)
+	UPROPERTY(EditDefaultsOnly, Category = Aiming)
 	float MaxElevationRate = 10.0f;
 
 private:
