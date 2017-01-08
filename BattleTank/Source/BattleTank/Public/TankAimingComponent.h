@@ -25,9 +25,8 @@ public:
 	// Sets default values for this component's properties
 	UTankAimingComponent();
 
-	void SetBarrelReference(UTankBarrel* BarrelToSet);
-
-	void SetTurretReference(UTankTurret* TurretToSet);
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+	void Initialise(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet);
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -37,7 +36,7 @@ public:
 
 	void AimAt(FVector HitLocation, float LaunchSpeed);
 
-	UPROPERTY(EditDefaultsOnly, Category = Aiming)
+	UPROPERTY(EditDefaultsOnly, Category = "Aiming")
 	float MaxElevationRate = 10.0f;
 
 protected:
