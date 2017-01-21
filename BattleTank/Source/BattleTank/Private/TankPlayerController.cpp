@@ -22,6 +22,8 @@ void ATankPlayerController::Tick(float DeltaSeconds)
 
 void ATankPlayerController::AimToCrosshair() const
 {
+	if (!GetPawn()) { return; } // e.g. if not possessing
+
 	auto AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
 	if (!ensure(AimingComponent)) { return; }
 
