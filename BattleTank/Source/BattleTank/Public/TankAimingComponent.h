@@ -43,7 +43,7 @@ public:
 protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "State")
-	EFiringStatus FiringStatus = EFiringStatus::Aiming;
+	EFiringStatus FiringStatus = EFiringStatus::Reloading;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aiming")
 	float LaunchSpeed = 4000.0f;
@@ -60,9 +60,13 @@ protected:
 private:
 	void AimBarrelTo(FVector AimDirection);
 
+	bool IsBarrelMoving() const;
+
 	UTankBarrel* Barrel = nullptr;
 
 	UTankTurret* Turret = nullptr;
 
 	double LastFireTime = 0;
+
+	FVector LastAimingDirection;
 };

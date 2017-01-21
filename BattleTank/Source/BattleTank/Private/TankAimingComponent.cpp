@@ -29,8 +29,7 @@ void UTankAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	LastFireTime = FPlatformTime::Seconds();	
 }
 
 
@@ -39,12 +38,31 @@ void UTankAimingComponent::TickComponent( float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	// ...
+	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeInSeconds)
+	{
+		FiringStatus = EFiringStatus::Reloading;
+	}
+	else if (IsBarrelMoving()) 
+	{
+		FiringStatus = EFiringStatus::Aiming;
+	}
+	else
+	{
+		FiringStatus = EFiringStatus::Locked; 
+	}
+}
+
+bool UTankAimingComponent::IsBarrelMoving() const
+{
+	if (!ensure(Barrel)) { return false; }
+
+	auto CurrentDirection = Barrel->GetForwardVector();
+	return !CurrentDirection.Equals(LastAimingDirection, 0.01f);
 }
 
 void UTankAimingComponent::AimAt(FVector HitLocation)
 {
-	auto TankName = GetOwner()->GetName();
+
 	auto StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
 
 	// We need to take the values of the shoot direction
@@ -58,6 +76,8 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 
 void UTankAimingComponent::AimBarrelTo(FVector AimDirection)
 {
+	LastAimingDirection = AimDirection;
+
 	auto AimRotator = AimDirection.Rotation();
 	auto BarrelRotator = Barrel->GetComponentRotation();
 	auto DeltaRotator = AimRotator - BarrelRotator;
@@ -75,12 +95,10 @@ void UTankAimingComponent::AimBarrelTo(FVector AimDirection)
 
 void UTankAimingComponent::Fire()
 {
-	// TODO: Change the aiming component so it can be fired from somewhere else
-
-	bool IsReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
-
-	if (Barrel && IsReloaded)
+	if (FiringStatus != EFiringStatus::Reloading)
 	{
+		if (!ensure(Barrel) || !ensure(ProjectileBlueprint)) { return; }
+
 		// Spawn a projectile at the socket location of the barrel
 		auto ProjectileLocation = Barrel->GetSocketLocation(FName("Projectile"));
 		auto ProjectileRotation = Barrel->GetSocketRotation(FName("Projectile"));
