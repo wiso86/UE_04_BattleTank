@@ -21,7 +21,9 @@ void UTankTrack::SetThrottle(float Throttle)
 
 void UTankTrack::DriveTrack()
 {
-	auto ForceApplied = GetForwardVector() * CurrentThrottle * TrackMaxDrivingForce;
+	auto DeltaTime = GetWorld()->GetDeltaSeconds();
+
+	auto ForceApplied = GetForwardVector() * CurrentThrottle * TrackMaxDrivingForce * DeltaTime;
 	auto ForceLocation = GetComponentLocation();
 	auto TankRoot = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
 	TankRoot->AddForceAtLocation(ForceApplied, ForceLocation);

@@ -38,17 +38,21 @@ void UTankAimingComponent::TickComponent( float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeInSeconds)
+	if (RoundsLeft <= 0)
 	{
-		FiringStatus = EFiringStatus::Reloading;
+		FiringState = EFiringState::OutOfAmmo;
+	}
+	else if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeInSeconds)
+	{
+		FiringState = EFiringState::Reloading;
 	}
 	else if (IsBarrelMoving()) 
 	{
-		FiringStatus = EFiringStatus::Aiming;
+		FiringState = EFiringState::Aiming;
 	}
 	else
 	{
-		FiringStatus = EFiringStatus::Locked; 
+		FiringState = EFiringState::Locked;
 	}
 }
 
@@ -62,6 +66,7 @@ bool UTankAimingComponent::IsBarrelMoving() const
 
 void UTankAimingComponent::AimAt(FVector HitLocation)
 {
+	if (!ensure(Barrel)) { return; }
 
 	auto StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
 
@@ -84,10 +89,8 @@ void UTankAimingComponent::AimBarrelTo(FVector AimDirection)
 
 	// If |Yaw| > 180, we change the direction of the rotation
 	auto RawYaw = DeltaRotator.Yaw;
-	if (RawYaw > 180.0f)
-		RawYaw -= 360.0f;
-	else if (RawYaw < -180.0f)
-		RawYaw += 360.0f;
+	if (FMath::Abs(RawYaw) > 180.0)
+		RawYaw = -RawYaw;
 
 	Barrel->Elevate(DeltaRotator.Pitch);
 	Turret->Rotate(RawYaw);
@@ -95,7 +98,7 @@ void UTankAimingComponent::AimBarrelTo(FVector AimDirection)
 
 void UTankAimingComponent::Fire()
 {
-	if (FiringStatus != EFiringStatus::Reloading)
+	if (FiringState != EFiringState::Reloading && FiringState != EFiringState::OutOfAmmo)
 	{
 		if (!ensure(Barrel) || !ensure(ProjectileBlueprint)) { return; }
 
@@ -106,5 +109,7 @@ void UTankAimingComponent::Fire()
 
 		NewProjectile->LaunchProjectile(LaunchSpeed);
 		LastFireTime = FPlatformTime::Seconds();
+
+		RoundsLeft--;
 	}
 }
