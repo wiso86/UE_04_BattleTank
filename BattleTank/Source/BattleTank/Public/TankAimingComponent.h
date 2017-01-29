@@ -47,7 +47,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Firing")
-	int GetRoundsLeft() const
+	int32 GetRoundsLeft() const
 	{
 		return RoundsLeft;
 	}
@@ -62,6 +62,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aiming")
 	float MaxElevationRate = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+	int32 RoundsLeft = 3;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float ReloadTimeInSeconds = 3.0f;
@@ -82,6 +85,4 @@ private:
 	double LastFireTime = 0;
 
 	FVector LastAimingDirection;
-
-	int RoundsLeft = 3;
 };
